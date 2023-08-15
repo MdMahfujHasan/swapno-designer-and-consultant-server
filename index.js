@@ -25,11 +25,15 @@ async function run() {
 
         const servicesCollection = client.db('swapnoDB').collection('services');
 
-        const garmentsSector = client.db('swapnoDB').collection('garmentsSector');
-        const telecomSector = client.db('swapnoDB').collection('telecomSector');
-        const rhdBangladesh = client.db('swapnoDB').collection('rhdBangladesh');
-        const bangladeshRailway = client.db('swapnoDB').collection('bangladeshRailway');
-        const otherProjects = client.db('swapnoDB').collection('otherProjects');
+        const garmentsSectorCollection = client.db('swapnoDB').collection('garmentsSector');
+        const telecomSectorCollection = client.db('swapnoDB').collection('telecomSector');
+        const rhdBangladeshCollection = client.db('swapnoDB').collection('rhdBangladesh');
+        const bangladeshRailwayCollection = client.db('swapnoDB').collection('bangladeshRailway');
+        const otherProjectsCollection = client.db('swapnoDB').collection('otherProjects');
+
+        const eventsCollection = client.db('swapnoDB').collection('events');
+
+        const messagesCollection = client.db('swapnoDB').collection('messages');
 
         app.get('/our-services', async (req, res) => {
             const result = await servicesCollection.find().toArray();
@@ -44,14 +48,37 @@ async function run() {
         });
 
         app.get('/garments-sector', async (req, res) => {
-            const result = await garmentsSector.find().toArray();
+            const result = await garmentsSectorCollection.find().toArray();
             res.send(result);
         });
 
         app.get('/garments-sector/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
-            const result = await garmentsSector.findOne(query);
+            const result = await garmentsSectorCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.get('/events', async (req, res) => {
+            const result = await eventsCollection.find().toArray();
+            res.send(result);
+        });
+
+        app.get('/events/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await eventsCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.get('/messages', async (req, res) => {
+            const result = await messagesCollection.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/messages', async (req, res) => {
+            const message = req.body;
+            const result = await messagesCollection.insertOne(message);
             res.send(result);
         });
 
