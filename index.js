@@ -1,6 +1,6 @@
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const cors = require('cors');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 const app = express();
@@ -23,17 +23,27 @@ async function run() {
     try {
         await client.connect();
 
+        const usersCollection = client.db('swapnoDB').collection('users');
         const servicesCollection = client.db('swapnoDB').collection('services');
-
+        const employeesCollection = client.db('swapnoDB').collection('employees');
         const garmentsSectorCollection = client.db('swapnoDB').collection('garmentsSector');
         const telecomSectorCollection = client.db('swapnoDB').collection('telecomSector');
         const rhdBangladeshCollection = client.db('swapnoDB').collection('rhdBangladesh');
         const bangladeshRailwayCollection = client.db('swapnoDB').collection('bangladeshRailway');
         const otherProjectsCollection = client.db('swapnoDB').collection('otherProjects');
-
         const eventsCollection = client.db('swapnoDB').collection('events');
-
         const messagesCollection = client.db('swapnoDB').collection('messages');
+
+        app.post('/users', async (req, res) => {
+            const user = req.body;
+            const query = { email: user.email };
+            const existingUser = await usersCollection.findOne(query);
+            if (existingUser) {
+                res.send({ message: "User already exist" });
+            }
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
+        });
 
         app.get('/our-services', async (req, res) => {
             const result = await servicesCollection.find().toArray();
@@ -44,6 +54,35 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await servicesCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.get('/employees', async (req, res) => {
+            const result = await employeesCollection.find().toArray();
+            res.send(result);
+        });
+
+        app.post('/employees', async (req, res) => {
+            const newEmployee = req.body;
+            const result = await employeesCollection.insertOne(newEmployee);
+            res.send(result);
+        });
+
+        app.put('/employees/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updatedEmployee = req.body;
+            const updatedDoc = {
+                $set: updatedEmployee
+            };
+            const result = await employeesCollection.updateOne(query, updatedDoc);
+            res.send(result);
+        });
+
+        app.delete('/employees/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await employeesCollection.deleteOne(query);
             res.send(result);
         });
 
